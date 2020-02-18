@@ -1,5 +1,6 @@
 # GO Game engine functions
 import pm # parameters
+import numpy as np
 
 class state():
 	def __init__():
@@ -21,17 +22,18 @@ class state():
 		self.U = np.zeros((pm.size,pm.size))
 
 	
+	def setP(P)
+		self.P = P 
 
 	# check if move played at pos by player is valid
 	def validity(self, player, pos):
-		if(self.P[pos[0]][pos[1]]):
+		if(self.P[pos[0]][pos[1]] == 0):
 			Ptemp = np.copy(self.P)
 			Ptemp[pos[0]][pos[1]] = player
 			Ltemp = capture(Ptemp, pos)
 			if(Ltemp[0][pos[0]][pos[1]] != 0):
 				return True
-			else:
-				return False
+		return False
 
 
 	def capture(self, P, pos):
@@ -40,6 +42,11 @@ class state():
 			if(L[0][p[0]][p[1]] == 0):
 				P = remove(p, P)
 		return computeLiberty(P)
+
+	def nbd(self, pos):
+		neighbours = []
+
+
 
 	# returns the scalar reward that the player has accumulated till now
 	def reward(self, player):
@@ -57,8 +64,12 @@ class state():
 		return P
 
 
+# driver code to test functions
 
+p = np.random.rand(0,3,(5,5))
+print(p)
+setP(p)
 
-
+print(validity(1,[2,2]))
 
 
