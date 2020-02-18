@@ -154,7 +154,9 @@ def go(state_in_string, turn):
     for centre2 in coordinate2:
         output = cv2.circle(output, centre2 , radius , (0, 0,0), -1)  
 
-    cv2.imwrite(folder + '\\data\\img'+ str(turn) + state_in_string +'.jpg', output)    
+    #print(str(int(state_in_string,base=3)))
+    # to get the windows file sorting to show the game temporally
+    cv2.imwrite(folder + '\\data\\img'+ "{:03d}".format(turn) +'.jpg', output)    
     return output
 
     

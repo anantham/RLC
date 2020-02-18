@@ -77,6 +77,7 @@ def capture(player, boardTemp, pos):
                 points[enemy] += len(cc) # update points
                 boardTemp[0] += list(cc) # update that new positions have been emptied up
 
+
 # player can be 1 or 2, white or black, pos is a tuple of (i,j)
 def play(player, pos):
     global board,turn # ensure these variables is treated as a global variable
@@ -98,6 +99,7 @@ def play(player, pos):
     print("You can only play on empty positions")
     return False
 
+'''
 move = input()
 player = 1
 while(move!='q'):
@@ -106,3 +108,13 @@ while(move!='q'):
 	player += 1 
 	move = input()
 	print("\n\n")
+
+'''
+
+
+player = 1
+while(turn<size**2):
+	randMove = board[0][np.random.randint(len(board[0]))]
+	if(not(play(player, randMove))):
+		continue
+	player = 3 - player 
