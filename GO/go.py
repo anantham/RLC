@@ -1,5 +1,5 @@
 # GO Game engine functions
-import pm
+import pm # parameters
 
 class state():
 	def __init__():
@@ -13,7 +13,7 @@ class state():
 		self.L = np.zeros((pm.size,pm.size,3))
 		# This tracks the net score gained by white at that position (i,j)
 		self.Z = np.zeros((pm.size,pm.size),2)
-		#self.histP = np.zeros((pm.size,pm.size,2))
+		#self.histP = np.zeros((pm.size,pm.size,2)) if we want to implement rule of KO
 
 		# intially all zeros belong to 0 id group then all elements 
 		# that form a connected component share a unique id 
@@ -21,7 +21,6 @@ class state():
 		self.U = np.zeros((pm.size,pm.size))
 
 	
-
 
 	# check if move played at pos by player is valid
 	def validity(self, player, pos):
