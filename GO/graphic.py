@@ -8,6 +8,8 @@ import tools as tl
 import pm
 
 folder = "C:\\Users\\Aditya Prasad\\OneDrive - Indian Institute of Science\\Documents\\IISc\\Semester 2\\Robot\\Project\\GO"
+x_padding = 400
+y_padding = 400
 
 def location(state_in_string, size = 3):
     if len(state_in_string) != int(size*size):
@@ -54,7 +56,7 @@ def wline(output, finish_check_state_in_string):
 
 def plot(output, coordinate1, coordinate2)  :
     for centre1 in coordinate1:
-        output = circle(output, centre1 )
+        output = circle(output, centre1)
     for centre2 in coordinate2:
         output = star(output, centre2)
     return output
@@ -62,7 +64,7 @@ def plot(output, coordinate1, coordinate2)  :
 
 
 def grid(state_in_string):
-    image = cv2.imread("go1.jpg")
+    image = cv2.imread("blank.jpg")
     (h,w,d) = image.shape
     #print('shape of image', (h,w,d))
     output = image.copy()
@@ -105,14 +107,14 @@ def Q_hist(Q, fil ='Null') :
 
 def check(img,size):
     size = size
-    box = int(2832/size)
+    box = int(pm.board_pixel/size) # actual size 2832
     margin = int(box/2)
 
     for i in range(size):
-        x1 = i*box + margin
-        y1 = margin
-        x2 = i*box + margin
-        y2 = 2832-margin
+        x1 = i*box + margin + x_padding
+        y1 = margin + y_padding
+        x2 = i*box + margin + x_padding
+        y2 = pm.board_pixel-margin + y_padding
         #(x1, y1), (x2, y2)
         img = cv2.line(img, (x1, y1), (x2, y2), (100,100,0), thickness=10, lineType=8, shift=0)
         img = cv2.line(img, (y1, x1), (y2, x2), (100,100,0), thickness=10, lineType=8, shift=0)
@@ -136,25 +138,33 @@ def go(state_in_string, turn):
         tl.cprint('graphic:go:- wrong datatype of string/state')
 
     size = int(np.ceil((np.sqrt(len(state_in_string)))))
-    print('size = {}, len = {}'.format(size,len(state_in_string) ))
-    box = int(2832/size)
+    #print('size = {}, len = {}'.format(size,len(state_in_string) ))
+    box = int(pm.board_pixel/size)
     margin = int(box/2)
     radius = int(0.8*margin)
 
     circle_int_location, star_int_location = location(state_in_string, size=size)
     coordinate1 = location_to_cordinate(circle_int_location,size=size, box=box)
     coordinate2 = location_to_cordinate(star_int_location,size=size, box=box)
-    print('coordinate1 =',coordinate1,'coordinate2 =', coordinate2) 
+    #print('coordinate1 =',coordinate1,'coordinate2 =', coordinate2) 
     
     output = board(size)
-    #print(output)
+    
 
     for centre1 in coordinate1:
-        output = cv2.circle(output, centre1 , radius , (255,255,255), -1)  
+        x,y = centre1
+        x += x_padding
+        y += y_padding
+        output = cv2.circle(output, (x,y) , radius , (255,255,255), -1)  
     for centre2 in coordinate2:
-        output = cv2.circle(output, centre2 , radius , (0, 0,0), -1)  
+        x,y = centre2
+        x += x_padding
+        y += y_padding
+        output = cv2.circle(output, (x,y) , radius , (0, 0,0), -1)  
 
     #print(str(int(state_in_string,base=3)))
+    #print(output)
+    
     # to get the windows file sorting to show the game temporally
     cv2.imwrite(folder + '\\data\\img'+ "{:03d}".format(turn) +'.jpg', output)    
     return output
