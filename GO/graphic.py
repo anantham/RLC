@@ -127,7 +127,7 @@ def board(size):
     #cv2.imwrite(folder + '\\data\\board'+str(size)+'.png',img )
     return img
 
-def go(state_in_string, turn):
+def go(state_in_string, turn,  points):
     #sanity check
     if type(state_in_string) == list:
         state_in_string = np.array(state_in_string)
@@ -164,7 +164,15 @@ def go(state_in_string, turn):
 
     #print(str(int(state_in_string,base=3)))
     #print(output)
-    
+
+    output = cv2.putText(output, "TURN NUMBER = " + str(turn), (60,360), cv2.FONT_HERSHEY_SIMPLEX,  
+                   3, (0, 0, 0), 10, cv2.LINE_AA)
+    output = cv2.putText(output, "WHITE HAS " + str(points[1]) + " POINTS", (pm.board_pixel-500,160), cv2.FONT_HERSHEY_SIMPLEX,  
+                   3, (0, 0, 0), 10, cv2.LINE_AA)
+    output = cv2.putText(output, "BLACK HAS " + str(points[2]) + " POINTS", (60,160), cv2.FONT_HERSHEY_SIMPLEX,  
+                   3, (0, 0, 0), 10, cv2.LINE_AA)
+
+
     # to get the windows file sorting to show the game temporally
     cv2.imwrite(folder + '\\data\\img'+ "{:03d}".format(turn) +'.jpg', output)    
     return output
