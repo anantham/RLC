@@ -197,7 +197,7 @@ def updatePoints(player, boardTemp, pos):
 
 # player can be 1 or 2, white or black, pos is a tuple of (i,j)
 def play(player, pos):
-	global board,turn # ensure these variables is treated as a global variable
+	global board, turn # ensure these variables is treated as a global variable
 	print("\n\nTurn Number "+ str(turn) +" player "+str(player)+" is trying to play at position "+str(pos))
 	print(points)
 	
@@ -217,10 +217,9 @@ def play(player, pos):
 		print("\n\nThe following is the captured area currently")
 		print(captured_area)
 		turn += 1
-		return True
+		return (board, rewardArea+rewardPieces)
 	print("You can only play on empty positions")
 	return False
-
 
 board = {1:[], 2:[]}
 points = {1:0, 2:0} # pieces captured + total area under control right now 
@@ -232,15 +231,52 @@ captured_area = { 1:[], 2:[]}
 turn = 1
 hist = [] # history of board positions
 
-'''
+
+board[0] = list(set(list(product(range(size), repeat = 2))))
+
+# dictionary to matrix representation
+def boardToState(b):
+	state = np.zeros((size,size))
+	for i,j in b[1]:
+		state[i][j] = 1
+	for i,j in b[2]:
+		state[i][j] = 2
+	return state
+
+# state is a numpy matrix of n,n 'action' is a position to play by 'player'
+def go(state, action, player):
+	b = {0:[], 1:[], 2:[]}
+	for i in range(size):
+		for j in range(size):
+			if(state[i][j] == 0):
+				b[0].append((i,j))
+			elif(state[i][j] == 1):
+				b[1].append((i,j))
+			elif(state[i][j] == 2):
+				b[2].append((i,j))
+	board = b
+	print(board)
+	s2, reward = play(player,action)
+	return boardToState(s2), reward
+
+
+print("Starting\n\n")
+
+s2,r1 = go(boardToState(board),(4,2),1)
+s3,r2 = go(s2,(2,1),2)
+print("results!! \n\n")
+print(s3)
+print(r2)
+
+
+''' Normal human play
 total = list(set(list(product(range(size), repeat = 2))))
 
 board[1] = random.sample(total,size*size//3)
 board[2] = random.sample(list(set(total) - set(board[1])),size*size//3)
 # initially all positions belong to blank - set(board[1]) - set(board[2]))
 board[0] = list(set(total) - set(board[1]) - set(board[2]))
-'''
-board[0] = list(set(list(product(range(size), repeat = 2))))
+
 
 move = 'y'
 player = 2
@@ -253,7 +289,7 @@ while(move!='q'):
 	print("\n\n")
 	print(points)
 	print("=======")
-
+'''
 
 
 ''' RANDOM GAME
