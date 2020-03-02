@@ -7,16 +7,11 @@ import matplotlib.pyplot as plt
 import random
 import time
 
+debug = False 
+
 size = pm.size
 
 G = nx.grid_graph([size,size])
-
-#c = G.subgraph([(0,0),(0,1),(1,1),(2,1),(3,2),(3,3),(4,3)])
-#cc = nx.node_connected_component(c,(0,0))
-#print()
-
-#board = {1: [(4,0),(4,1),(4,2),(1,4),(0,4),(2,4)], 2: [(0,0),(0,1),(1,1),(2,1),(3,2),(3,3),(4,3)]}
-
 
 def plot(board,turn):
 	state = np.zeros((size,size))
@@ -26,10 +21,11 @@ def plot(board,turn):
 		state[i][j] = 2
 	img = graphic.go(state, turn, points) # or you can pass points if you want to display area too
 
-	# Display board state
-	plt.close()
-	plt.imshow(img)
-	plt.show(block=False)
+	if(False):
+		# Display board state
+		plt.close()
+		plt.imshow(img)
+		plt.show(block=False)
 
 # capture pieces that that now covered due to move played at pos
 def capture(player, boardTemp, pos):
@@ -46,16 +42,18 @@ def capture(player, boardTemp, pos):
 		sub = G.subgraph(boardTemp[enemy])
 		if(n in sub):
 			cc = nx.node_connected_component(sub,n)
-			print("===")
-			print("The connected components of "+str(n)+" in the following enemy subgraph is")
-			print(sub)
-			print(cc)
+			if(debug):
+				print("===")
+				print("The connected components of "+str(n)+" in the following enemy subgraph is")
+				print(sub)
+				print(cc)
+				print("the boundary for this cc is")
 			boundary = nx.node_boundary(G,cc) # get all the liberties of this CC of your enemy
-			print("the boundary for this cc is")
-
+			
 			# check if you cover this cc
 			if(boundary.issubset(set(boardTemp[player]))):
-				print("The cc has been captured by you!!")
+				if(debug):
+					print("The cc has been captured by you!!")
 				boardTemp[enemy] =  [e for e in boardTemp[enemy] if e not in cc] # capture the pieces
 				points[player] += len(cc) # update points
 				piecesCaptured[player] += len(cc)
@@ -67,15 +65,17 @@ def capture(player, boardTemp, pos):
 		sub = G.subgraph(boardTemp[player])
 		if(n in sub):
 			cc = nx.node_connected_component(sub,n)
-			print("===")
-			print("The connected components of "+str(n)+" in the player subgraph is")
-			print(sub)
-			print(cc)
+			if(debug):
+				print("===")
+				print("The connected components of "+str(n)+" in the player subgraph is")
+				print(sub)
+				print(cc)
+				print("the boundary for this cc is")
 			boundary = nx.node_boundary(G,cc) # get all the liberties of this CC
-			print("the boundary for this cc is")
-
+			
 			if(boundary.issubset(set(boardTemp[enemy]))):
-				print("Your cc has been captured by SELF CAPTURE!!")
+				if(debug):
+					print("Your cc has been captured by SELF CAPTURE!!")
 				boardTemp[player] =  [e for e in boardTemp[player] if e not in cc] # capture the pieces
 				points[enemy] += len(cc) # update points
 				piecesCaptured[enemy] += len(cc)
@@ -109,14 +109,17 @@ def updatePoints(player, boardTemp, pos):
 		sub = G.subgraph(boardTemp[0])
 		if(n in sub):
 			cc = nx.node_connected_component(sub,n)
-			print("===")
-			print("The connected components of "+str(n)+" in the subgraph of empty spaces is")
-			print(sub)
-			print(cc)
+			if(debug):
+				print("===")
+				print("The connected components of "+str(n)+" in the subgraph of empty spaces is")
+				print(sub)
+				print(cc)
+
 			boundary = nx.node_boundary(G,cc)
 			if(boundary.issubset(set(boardTemp[enemy]))):
 				not_tabulated = True
-				print("This cc is covered by player "+str(enemy))
+				if(debug):
+					print("This cc is covered by player "+str(enemy))
 				for oldArea in captured_area[enemy]:
 					if(cc.issubset(oldArea)):
 						# old territory can shrink, should run only once for a single oldArea
@@ -129,18 +132,21 @@ def updatePoints(player, boardTemp, pos):
 						reward -= len(cc)
 
 						not_tabulated = False
-						print("cc is a subset of Old area ->")
-						print(oldArea)
+						if(debug):
+							print("cc is a subset of Old area ->")
+							print(oldArea)
 
 				if(not_tabulated):
 					captured_area[enemy].append(cc)
 					points[enemy] += len(cc)
 					reward -= len(cc) # since enemy gained
-					print("fresh entry into captured_area")
+					if(debug):	
+						print("fresh entry into captured_area")
 
 			elif(boundary.issubset(set(boardTemp[player]))):
 				not_tabulated = True
-				print("This cc is covered by player "+str(player))
+				if(debug):
+					print("This cc is covered by player "+str(player))
 
 				for oldArea in captured_area[player]:
 					if(cc.issubset(oldArea)):
@@ -154,14 +160,16 @@ def updatePoints(player, boardTemp, pos):
 						reward += len(cc)
 
 						not_tabulated = False
-						print("cc is a subset of Old area ->")
-						print(oldArea)
+						if(debug):
+							print("cc is a subset of Old area ->")
+							print(oldArea)
 
 				if(not_tabulated):
 					captured_area[player].append(cc)
 					points[player] += len(cc)
 					reward += len(cc)
-					print("fresh entry into captured_area")
+					if(debug):
+						print("fresh entry into captured_area")
 			else:
 				# if this connected commponent is now under contention
 				# we need to remove it from captured_area if it used to exist.
@@ -178,8 +186,8 @@ def updatePoints(player, boardTemp, pos):
 						captured_area[enemy].remove(oldArea)
 						points[enemy] -= len(oldArea)
 						reward += len(oldArea)
-
-	print("\n\nPlayer "+str(player)+" played at position "+str(pos)+" and got a reward of ")
+	if(debug):
+		print("\n\nPlayer "+str(player)+" played at position "+str(pos)+" and got a reward of ")
 	return reward
 
 	# One more case is if the single blank spot is now taken over by a colored piece
@@ -195,9 +203,11 @@ def updatePoints(player, boardTemp, pos):
 
 # player can be 1 or 2, white or black, pos is a tuple of (i,j)
 def play(player, pos):
-	global board, turn # ensure these variables is treated as a global variable
-	print("\n\nTurn Number "+ str(turn) +" player "+str(player)+" is trying to play at position "+str(pos))
-	print(points)
+	# ensure these variables is treated as a global variable
+	global board, turn 
+	if(debug):	
+		print("\n\nTurn Number "+ str(turn) +" player "+str(player)+" is trying to play at position "+str(pos))
+		print(points)
 	
 	# check if position is free of any other piece
 	if(pos in board[0]):
@@ -206,17 +216,20 @@ def play(player, pos):
 		boardTemp[player].append(pos)
 		rewardPieces = capture(player, boardTemp, pos)
 		rewardArea = updatePoints(player, boardTemp, pos)
-		print(str(rewardArea+rewardPieces))
+		if(debug):
+			print(str(rewardArea+rewardPieces))
 
 		# Rule 8 Prohibition of repetition TO DO
 		hist.append(boardTemp)
 		board = boardTemp
 		plot(board,turn)
-		print("\n\nThe following is the captured area currently")
-		print(captured_area)
+		if(debug):	
+			print("\n\nThe following is the captured area currently")
+			print(captured_area)
 		turn += 1
 		return (board, rewardArea+rewardPieces)
-	print("You can only play on empty positions")
+	if(debug):
+		print("You can only play on empty positions")
 	return False
 
 board = {1:[], 2:[]}
@@ -252,19 +265,10 @@ def go(state, action, player):
 			elif(state[i][j] == 2):
 				b[2].append((i,j))
 	board = b
-	print(board)
+	if(debug):
+		print(board)
 	s2, reward = play(player,action)
 	return boardToState(s2), reward
-
-
-print("Starting\n\n")
-
-s2,r1 = go(boardToState(board),(4,2),1)
-s3,r2 = go(s2,(2,1),2)
-print("results!! \n\n")
-print(s3)
-print(r2)
-
 
 ''' Normal human play '''
 def humanPlay(randomStart = False):
@@ -287,20 +291,18 @@ def humanPlay(randomStart = False):
 		if(not(play(player%2+1, tuple(map(int,move.split(' ')))))):
 			continue # invalid move same player tries again
 		player += 1 
-		print("\n\n")
-		print(points)
-		print("=======")
 
 
 
 def randAgents():
-	gameNumber = 1
+	gameNumber = 0
 
+	# Number of games to be played
 	for i in range(100000):
 		text_file = open(pm.myHomeFolder + "\\data\\gameNumber"+str(gameNumber)+".txt", "w")
 		player = 1
 		gameNumber += 1
-		turn = 1
+
 		board = {1:[], 2:[]}
 		points = {1:0, 2:0}
 		turn = 0 
@@ -311,7 +313,10 @@ def randAgents():
 		
 		while(turn<size**2):
 			randMove = board[0][np.random.randint(len(board[0]))]
-			if(not(play(player, randMove))):
+			print(randMove)
+
+			if(play(player, randMove) == False):
+				print("===lol=====")
 				continue
 			player = 3 - player 
 			state = np.zeros((size,size))
