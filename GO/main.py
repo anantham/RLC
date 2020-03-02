@@ -1,12 +1,11 @@
 # Plotting, printing output, calling other function
-
 import networkx as nx
 from itertools import product
 import graphic, pm
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-
+import time
 
 size = pm.size
 
@@ -31,7 +30,6 @@ def plot(board,turn):
 	plt.close()
 	plt.imshow(img)
 	plt.show(block=False)
-
 
 # capture pieces that that now covered due to move played at pos
 def capture(player, boardTemp, pos):
@@ -231,7 +229,6 @@ captured_area = { 1:[], 2:[]}
 turn = 1
 hist = [] # history of board positions
 
-
 board[0] = list(set(list(product(range(size), repeat = 2))))
 
 # dictionary to matrix representation
@@ -269,64 +266,67 @@ print(s3)
 print(r2)
 
 
-''' Normal human play
-total = list(set(list(product(range(size), repeat = 2))))
+''' Normal human play '''
+def humanPlay(randomStart = False):
+	if(randomStart):
+		total = list(set(list(product(range(size), repeat = 2))))
 
-board[1] = random.sample(total,size*size//3)
-board[2] = random.sample(list(set(total) - set(board[1])),size*size//3)
-# initially all positions belong to blank - set(board[1]) - set(board[2]))
-board[0] = list(set(total) - set(board[1]) - set(board[2]))
+		board[1] = random.sample(total,size*size//3)
+		board[2] = random.sample(list(set(total) - set(board[1])),size*size//3)
+		# initially all positions belong to blank - set(board[1]) - set(board[2]))
+		board[0] = list(set(total) - set(board[1]) - set(board[2]))
+	else:
+		board = {1:[], 2:[]}
+		board[0] = list(set(list(product(range(size), repeat = 2))))
+
+	move = 'y'
+	player = 2
+		
+	while(move!='q'):
+		move = input()
+		if(not(play(player%2+1, tuple(map(int,move.split(' ')))))):
+			continue # invalid move same player tries again
+		player += 1 
+		print("\n\n")
+		print(points)
+		print("=======")
 
 
-move = 'y'
-player = 2
-	
-while(move!='q'):
-	move = input()
-	if(not(play(player%2+1, tuple(map(int,move.split(' ')))))):
-		continue # invalid move same player tries again
-	player += 1 
-	print("\n\n")
-	print(points)
-	print("=======")
-'''
 
+def randAgents():
+	gameNumber = 1
 
-''' RANDOM GAME
-gameNumber = 1
+	for i in range(100000):
+		text_file = open(pm.myHomeFolder + "\\data\\gameNumber"+str(gameNumber)+".txt", "w")
+		player = 1
+		gameNumber += 1
+		turn = 1
+		board = {1:[], 2:[]}
+		points = {1:0, 2:0}
+		turn = 0 
+		hist = [] # history of board positions
 
-for i in range(100000):
-	text_file = open(pm.myHomeFolder + "\\data\\gameNumber"+str(gameNumber)+".txt", "w")
-	player = 1
-	gameNumber += 1
-	turn = 1
-	board = {1:[], 2:[]}
-	points = {1:0, 2:0}
-	turn = 0 
-	hist = [] # history of board positions
+		# initially all positions belong to blank - set(board[1]) - set(board[2]))
+		board[0] = list(set(list(product(range(size), repeat = 2))))
+		
+		while(turn<size**2):
+			randMove = board[0][np.random.randint(len(board[0]))]
+			if(not(play(player, randMove))):
+				continue
+			player = 3 - player 
+			state = np.zeros((size,size))
+			for i,j in board[1]:
+				state[i][j] = 1
+			for i,j in board[2]:
+				state[i][j] = 2
 
-	# initially all positions belong to blank - set(board[1]) - set(board[2]))
-	board[0] = list(set(list(product(range(size), repeat = 2))))
-	
-	while(turn<size**2):
-		randMove = board[0][np.random.randint(len(board[0]))]
-		if(not(play(player, randMove))):
-			continue
-		player = 3 - player 
-		state = np.zeros((size,size))
-		for i,j in board[1]:
-			state[i][j] = 1
-		for i,j in board[2]:
-			state[i][j] = 2
+			string = ''
+			for i in state.astype(int).flatten():
+				string += str(i)
+			string += '\n'
+			text_file.write(string)
+		
+		print("Done writing the data of game number "+str(gameNumber) + " to disk! \n")
+		print(points)
 
-		string = ''
-		for i in state.astype(int).flatten():
-			string += str(i)
-		string += '\n'
-		text_file.write(string)
-	
-	print("Done writing the data of game number "+str(gameNumber) + " to disk! \n")
-	print(points)
-
-	text_file.close()
-'''
+		text_file.close()
