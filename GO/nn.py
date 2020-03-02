@@ -1,4 +1,3 @@
-# Tools and utility functions for neural networks
 import numpy as np 
 import pm
 import tools as tl 
@@ -52,44 +51,38 @@ class pad:
         
 
 class linear():
-    def __init__(self, shape):
+    def __init__(self):
         self.x_dim,  self.y_dim = [],[]
-        self.init_param(shape)
-
+        self.opt = optimizer()
+        
     def grad_zero(self):
-        self.db, self.dw  = 0,0
+        self.delta  = 0
 
-    def set_param(self, w, b):
+    def set_param(self, w, b=0):
         self.w = w.copy()
-        self.b = b.copy()
         self.x_dim, self.y_dim = w.shape
         self.grad_zero()
 
     def init_param(self,shape):
         self.x_dim, self.y_dim = shape
         self.w = np.random.randn(self.x_dim, self.y_dim)/np.sqrt(self.x_dim*self.y_dim)
-        self.b = np.zeros(self.y_dim)
         self.grad_zero()
    
     def forward(self,x):
-    	self.inputShape = x.shape
-    	x = x.flatten()
         self.x = x.copy()
-        self.y = self.x@self.w + self.b
+        self.y = self.x@self.w
         return self.y
 
     def backward(self, dy):
         self.dy = dy
         self.dx = self.dy@np.transpose(self.w)  
-        self.delta = np.outer(self.x, self.dy)
-        self.dw = self.dw*(pm.momentum) + (1-pm.momentum)*self.delta
-        self.db = self.db*(pm.momentum) + (1-pm.momentum)*self.dy
-        dx.reshape(self.inputShape)
+        self.dw = np.outer(self.x, self.dy)
         return self.dx
 
     def update(self):
-        self.w = self.w - pm.learning_rate*self.dw      
-        self.b = self.b - pm.learning_rate*self.db
+        self.delta = self.opt.adam(self.dw)
+        self.w = self.w - self.delta      
+        
 
         
 
@@ -200,9 +193,9 @@ class convolve3d():
     def __init__(self, shape=(None,None,None,None), mode ='same', bias=True):
         self.mode = mode     #(k,l,m,n) k filter, l input dim, (m,n)filter shape
         self.k, self.l, self.m, self.n = shape
-        if(shape[0]!=None):
-        	self.init_param(shape)
-
+        if shape[0] != None:
+            self.init_param(shape)
+            print('nn:convolve3d')
     def grad_zero(self):
         self.delta  =  0 #np.zeros((self.k, self.l, self.m, self.n))
 
@@ -295,22 +288,14 @@ class cre():
     def forward(self,x, label):
         self.label = label.copy()  
         self.x = x.copy()
-        if np.sum(np.where(self.x <0,-1,0)) <0 : #sanity check
-            tl.cprint('nn.py:cre:- Input are negative for cross entropy loss, input={}'.format(self.x))
-            return 
-        self.label_entropy = -np.log2(self.label+0.0001)*self.label
+        self.label_entropy = -np.log2(self.label+0.0001)*self.label    #0.0001 is added to avoid log(0)
         self.x_entropy = -np.log2(self.x+0.0001)*self.label
         self.y = self.x_entropy  - self.label_entropy
         self.y = np.sum(self.y)   #KL divergence
         return self.y
     
     def backward(self) :   
-        self.dx = -self.label*(1/self.x)
-        t= np.max(np.abs(self.dx)) 
-        if t>100:
-            print(t, 'overflow')
-            self.dx = self.dx/t
-        
+        self.dx = -self.label*(1/(self.x+0.0001))       # 0.0001 is added to avoid insanely large value of 1/x     
         return self.dx   
 
 class sigmoid():
@@ -326,9 +311,6 @@ class sigmoid():
         self.dy = dy.copy()
         self.dx = self.dy*self.y*(1-self.y)    
         return self.dx
-
-    def update(self, dx):
-    	pass
 
         
 class optimizer():
@@ -356,6 +338,7 @@ class add():
     def __init__(self):
         self.dw = []
         self.w  = 0
+        self.opt = optimizer()
         self.grad_zero()
 
     def grad_zero(self):
@@ -381,8 +364,8 @@ class add():
         return self.dx  
 
     def update(self):
-        self.delta = self.delta*pm.momentum + self.dw*(1-pm.momentum)  
-        self.w = self.w - pm.learning_rate*self.delta  
+        self.delta = self.opt.adam(self.dw)
+        self.w = self.w - self.delta  
 
 
 # class sequential():
