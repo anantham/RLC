@@ -22,7 +22,7 @@ print('Architecture loaded')
 
 layer = [conv1, add1, relu1, conv2, add2, conv3, add3, lin, sigmoid, mse]
 
-#compute  graph
+# compute  graph
 def model(x,y=None, update = True):
     x = conv1.forward(x)
     x = add1.forward(x)
@@ -33,7 +33,7 @@ def model(x,y=None, update = True):
     x = sigmoid.forward(x)
     x = mse.forward(x,y)
     
-    if update ==True:
+    if update == True:
         dx = mse.backward()
         dx = sigmoid.backward(dx)
         dx = lin.backward(dx)

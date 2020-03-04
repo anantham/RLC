@@ -1,7 +1,8 @@
 # Plotting, printing output, calling other function
 import networkx as nx
 from itertools import product
-import graphic, pm
+import graphic as gr
+import pm
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -19,7 +20,7 @@ def plot(board,turn):
 		state[i][j] = 1
 	for i,j in board[2]:
 		state[i][j] = 2
-	img = graphic.go(state, turn, points) # or you can pass points if you want to display area too
+	img = gr.go(state, turn, points, plot = False) # or you can pass points if you want to display area too
 
 	if(False):
 		# Display board state
@@ -230,7 +231,7 @@ def play(player, pos):
 		return (board, rewardArea+rewardPieces)
 	if(debug):
 		print("You can only play on empty positions")
-	return False
+	return (board, -size**2)
 
 board = {1:[], 2:[]}
 points = {1:0, 2:0} # pieces captured + total area under control right now 
@@ -255,6 +256,9 @@ def boardToState(b):
 
 # state is a numpy matrix of n,n 'action' is a position to play by 'player'
 def go(state, action, player):
+	y, x = gr.location_to_cordinate([action],size = pm.size, box = 1)[0]
+	action = (x,y)
+
 	b = {0:[], 1:[], 2:[]}
 	for i in range(size):
 		for j in range(size):

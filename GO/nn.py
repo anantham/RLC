@@ -65,11 +65,13 @@ class linear():
 
     def init_param(self,shape):
         self.x_dim, self.y_dim = shape
-        self.w = np.random.randn(self.x_dim, self.y_dim)/np.sqrt(self.x_dim*self.y_dim)
+        self.w = np.random.randn(self.x_dim, self.y_dim)
         self.grad_zero()
    
     def forward(self,x):
+        self.inputShape = x.shape
         self.x = x.copy()
+        self.x = x.reshape([-1])
         self.y = self.x@self.w
         return self.y
 
@@ -77,6 +79,7 @@ class linear():
         self.dy = dy
         self.dx = self.dy@np.transpose(self.w)  
         self.dw = np.outer(self.x, self.dy)
+        self.dx = self.dx.reshape(self.inputShape)
         return self.dx
 
     def update(self):
@@ -210,6 +213,8 @@ class convolve3d():
         
     def forward(self,x):
         self.x = x.copy()
+        if(self.x.ndim == 2):
+            self.x = self.x.reshape([1]+list(x.shape))
         self.X = np.array([pad.pad2d(x,(self.m, self.n), self.mode) for x in self.x]) # X = padded x ,dim=(l,m',n')
         self.Y = np.array([[sg.correlate2d(x2,w2,mode='valid') for x2,w2 in zip(self.X, w1)] for w1 in self.w]) # dim=(k,l,m',n')
         self.y = np.sum(self.Y, axis=1) # dim=(k,m',n')       
@@ -227,7 +232,6 @@ class convolve3d():
         self.w = self.w - pm.learning_rate*self.delta    
 
 
-    
 
 class relu():
     def __init__(self):
@@ -301,6 +305,7 @@ class cre():
 class sigmoid():
     def __init__(self):
         self.dx =[]
+        self.w = 0
 
     def forward(self, x):
         self.x = x.copy()
@@ -311,6 +316,12 @@ class sigmoid():
         self.dy = dy.copy()
         self.dx = self.dy*self.y*(1-self.y)    
         return self.dx
+
+    def update(self):
+        pass
+
+    def set_param(self, w):
+        pass
 
         
 class optimizer():

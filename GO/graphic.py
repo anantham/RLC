@@ -127,7 +127,7 @@ def board(size):
     #cv2.imwrite(folder + '\\data\\board'+str(size)+'.png',img )
     return img
 
-def go(state_in_string, turn,  points):
+def go(state_in_string, turn = 0,  points = [-2,-2], plot = False):
     #sanity check
     if type(state_in_string) == list:
         state_in_string = np.array(state_in_string)
@@ -174,7 +174,9 @@ def go(state_in_string, turn,  points):
 
 
     # to get the windows file sorting to show the game temporally
-    cv2.imwrite(folder + '\\data\\img'+ "{:03d}".format(turn) +'.jpg', output)    
+    if(plot):
+        cv2.imwrite(folder + '\\data\\img'+ "{:03d}".format(turn) +'.jpg', output)    
+    
     return output
 
     

@@ -365,14 +365,14 @@ def Filter(Q, fil ='Null') :
     return Q  
 
 
-def index(adress):
+def index(address):
     
-    if os.path.exists('adress'):
-        index = np.loadtxt('adress')
+    if os.path.exists(address):
+        index = np.loadtxt(address)
         index = int(index) +1
     else :
         index = 10
-    np.savetxt('adress', [index])
+    np.savetxt(address, [index])
 
     return index
     
