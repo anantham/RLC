@@ -125,11 +125,11 @@ def play(s1):
 model1 = Model1.model1()
 model2 = Model1.model1()
 
-#load_index = input('enter input index')
-load_index = index-1
+load_index = input('enter input index')
+#load_index = index-1
 
 W1 = tl.load_Q('data/param/W1'+str(load_index))
-W2 = tl.load_Q('data/param/W1'+str(load_index))
+W2 = tl.load_Q('data/param/W2'+str(load_index))
 
 for l, n in zip(model1.layers,W1):
 	l.set_param(n)
@@ -137,20 +137,20 @@ for l, n in zip(model1.layers,W1):
 for l, n in zip(model2.layers,W2):
 	l.set_param(n)
 
-for i in range(10**4):
+for i in range(10**6):
 	# start the game
 	play(main.boardToState(board))
-	tl.fprint('ptp 1lin1 = {:4f}, std 2lin1 = {:4f}, ptp 2lin2 ={:4f}'.format(np.ptp(model1.lin.w),  np.std(model2.conv1.w), np.ptp(model2.lin.dw)))
+	#tl.fprint('{}, ptp 1lin1.w = {:4f}, std 2conv1.w= {:4f}, ptp 2lin2.dw ={:4f}'.format(i,np.ptp(model1.lin.w),  np.std(model2.conv1.w), np.ptp(model2.lin.dw)))
+	if i %500 == 0:
+		tl.fprint('{}, ptp 1lin1.w = {:4f}, std 2conv1.w= {:4f}, ptp 2lin2.dw ={:4f}'.format(i,np.ptp(model1.lin.w),  np.std(model2.conv1.w), np.ptp(model2.lin.dw)))
+		W1 = [l.w for l in model1.layers]
+		W2 = [l.w for l in model2.layers]
 
 
-W1 = [l.w for l in model1.layers]
-W2 = [l.w for l in model2.layers]
+		tl.dump_Q(W1,'data/param/W1'+str(index))
+		tl.dump_Q(W2,'data/param/W2'+str(index))
 
-
-tl.dump_Q(W1,'data/param/W1'+str(index))
-tl.dump_Q(W2,'data/param/W2'+str(index))
-
-print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
+		print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
 
 
 	
