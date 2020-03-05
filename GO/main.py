@@ -231,7 +231,7 @@ def play(player, pos):
 		return (board, rewardArea+rewardPieces)
 	if(debug):
 		print("You can only play on empty positions")
-	return (board, -size**2)
+	return (board, -1*size*size)
 
 board = {1:[], 2:[]}
 points = {1:0, 2:0} # pieces captured + total area under control right now 

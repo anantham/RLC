@@ -198,7 +198,6 @@ class convolve3d():
         self.k, self.l, self.m, self.n = shape
         if shape[0] != None:
             self.init_param(shape)
-            print('nn:convolve3d')
     def grad_zero(self):
         self.delta  =  0 #np.zeros((self.k, self.l, self.m, self.n))
 

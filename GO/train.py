@@ -75,7 +75,7 @@ def play(s1):
 
 	turn += 1 # s2 v2 has been taught
 
-	for i in range(21):
+	for i in range(10**5):
 		# get a4 from v4
 		ai = np.argmax(v[turn+1])
 		# s5 r4 from s4 and a4
@@ -125,8 +125,8 @@ def play(s1):
 model1 = Model1.model1()
 model2 = Model1.model1()
 
-#load_index = input('enter input index')
-load_index = index-1
+load_index = input('enter input index')
+#load_index = index-1
 
 W1 = tl.load_Q('data/param/W1'+str(load_index))
 W2 = tl.load_Q('data/param/W1'+str(load_index))
@@ -137,18 +137,32 @@ for l, n in zip(model1.layers,W1):
 for l, n in zip(model2.layers,W2):
 	l.set_param(n)
 
-for i in range(10**4):
-	# start the game
-	play(main.boardToState(board))
-	tl.fprint('ptp 1lin1 = {:4f}, std 2lin1 = {:4f}, ptp 2lin2 ={:4f}'.format(np.ptp(model1.lin.w),  np.std(model2.conv1.w), np.ptp(model2.lin.dw)))
+
+print("Starting! \n\n")
+for i in range(10**2):
+	try:	
+		# start the game
+		play(main.boardToState(board))
+		tl.fprint('ptp 1lin1 = {:4f}, std 2lin1 = {:4f}, ptp 2lin2 ={:4f}'.format(np.ptp(model1.lin.w),  np.std(model2.conv1.w), np.ptp(model2.lin.dw)))
+	except KeyboardInterrupt:
+		# If we notice delta -> 0 use control C to save and exit training
+		W1 = [l.w for l in model1.layers]
+		W2 = [l.w for l in model2.layers]
+
+
+		tl.dump_Q(W1,'data/param/W1_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model1)[1:9])
+		tl.dump_Q(W2,'data/param/W2_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model2)[1:9])
+
+		print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
+		 
 
 
 W1 = [l.w for l in model1.layers]
 W2 = [l.w for l in model2.layers]
 
 
-tl.dump_Q(W1,'data/param/W1'+str(index))
-tl.dump_Q(W2,'data/param/W2'+str(index))
+tl.dump_Q(W1,'data/param/W1_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model1)[1:9])
+tl.dump_Q(W2,'data/param/W2_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model2)[1:9])
 
 print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
 
