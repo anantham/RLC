@@ -32,7 +32,6 @@ def normalize(r):
 
 def play(s1):
 	turn = 0
-
 	v1 = model1.forward(s1, update=False)
 	a1 = np.argmax(v1) # \in [0,24]
 	s2, r1 = main.go(s1,a1, 1)
@@ -129,12 +128,16 @@ load_index = input('enter input index')
 #load_index = index-1
 
 W1 = tl.load_Q('data/param/W1'+str(load_index))
-W2 = tl.load_Q('data/param/W1'+str(load_index))
+W2 = tl.load_Q('data/param/W2'+str(load_index))
 
 for l, n in zip(model1.layers,W1):
+	if(type(n)==int):
+		n = np.asarray(0)
 	l.set_param(n)
 
 for l, n in zip(model2.layers,W2):
+	if(type(n)==int):
+		n = np.asarray(0)
 	l.set_param(n)
 
 
@@ -156,15 +159,9 @@ for i in range(10**2):
 		print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
 		 
 
-
-W1 = [l.w for l in model1.layers]
-W2 = [l.w for l in model2.layers]
-
-
 tl.dump_Q(W1,'data/param/W1_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model1)[1:9])
 tl.dump_Q(W2,'data/param/W2_index'+str(index)+"_NoOfGames"+str(i)+"_"+str(model2)[1:9])
 
 print('Trained weights saved at data/param/W1 and W2 {}'.format(index))  
-
 
 	
