@@ -238,7 +238,104 @@ class mse(layer):
 
     def backward(self):
         self.dx = self.x - self.label         
-        return self.dx   
+        return self.dx 
+
+
+
+class smoothl1loss(layer) :
+    
+    """
+    Smooth L1 loss defined in the Fast R-CNN paper as:
+                  | 0.5 * x ** 2 / beta   if abs(x) < beta
+    smoothl1(x) = |
+                  | abs(x) - 0.5 * beta   otherwise,
+    where x = input - target.
+    Smooth L1 loss is related to Huber loss, which is defined as:
+                | 0.5 * x ** 2                  if abs(x) < beta
+     huber(x) = |
+                | beta * (abs(x) - 0.5 * beta)  otherwise
+    Smooth L1 loss is equal to huber(x) / beta. This leads to the following
+    differences:
+     - As beta -> 0, Smooth L1 loss converges to L1 loss, while Huber loss
+       converges to a constant 0 loss.
+     - As beta -> +inf, Smooth L1 converges to a constant 0 loss, while Huber loss
+       converges to L2 loss.
+     - For Smooth L1 loss, as beta varies, the L1 segment of the loss has a constant
+       slope of 1. For Huber loss, the slope of the L1 segment is beta.
+    Smooth L1 loss can be seen as exactly L1 loss, but with the abs(x) < beta
+    portion replaced with a quadratic function such that at abs(x) = beta, its
+    slope is 1. The quadratic segment smooths the L1 loss near x = 0.
+    Args:
+        input : input of any shape
+        target : target value with the same shape as input
+        beta (float): L1 to L2 change point.
+            For beta values < 1e-5, L1 loss is computed.
+        reduction: 'none' | 'mean' | 'sum'
+                 'none': No reduction will be applied to the output.
+                 'mean': The output will be averaged.
+                 'sum': The output will be summed.
+    Returns:
+        The loss with the reduction option applied.
+
+    """
+
+    # link for smooth l1 loss : https://mohitjainweb.files.wordpress.com/2018/03/smoothl1loss.pdf
+
+
+    def __init__(self) :
+        super().__init__(trainable=False)
+
+    def forward(self , inputs , targets , beta_float , reduction = None) :
+        self.label = target.copy()
+        self.x = inputs.copy()
+
+        if beta < 1e-5:
+            self.loss = np.abs(inputs - targets)
+
+        else :
+
+            n = np.abs(inputs - targets)
+            cond = n < beta
+
+            self.loss = np.where(cond, 0.5 * n ** 2 / beta, n - 0.5 * beta)
+
+        if (reduction == 'mean') :
+            self.loss = np.mean(loss)
+
+        if (reduction == 'sum') :
+            self.loss = np.sum(loss)
+
+        return self.loss 
+
+    def backward(self) :
+        n = np.sum(np.abs(self.x - self.labels))
+
+        if n <= -1 :
+            self.dx = -1
+
+        elif n <= 1 :
+            self.dx = n 
+
+        else :
+            self.dx = 1
+
+        return self.dx
+
+
+        
+
+
+
+
+
+
+
+
+
+        
+
+
+
 
 class softmax(layer):
     def __init__(self):
@@ -288,6 +385,7 @@ class sigmoid(layer):
         self.dy = dy.copy()
         self.dx = self.dy*self.y*(1-self.y)    
         return self.dx
+    
 
 class add(layer):
     def forward(self,x):
