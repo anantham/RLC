@@ -75,10 +75,10 @@ eps = np.finfo(np.float32).eps.item()
 
 def Categorical(probs) :
 
-		A_as_numbers = np.argmax(np.log(probs) + np.random.gumbel(size=probs.shape), axis=1)
-	    A_one_hot = np.eye(probs.shape[1])[A_as_numbers].reshape(probs.shape)
+	a_as_numbers = np.argmax(np.log(probs) + np.random.gumbel(size=probs.shape), axis=1)
+	a_one_hot = np.eye(probs.shape[1])[A_as_numbers].reshape(probs.shape)
 
-	    return A_one_hot
+	return a_one_hot
 
 
 
