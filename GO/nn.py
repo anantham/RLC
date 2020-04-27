@@ -304,6 +304,9 @@ class smoothl1loss(layer) :
 
         if (reduction == 'sum') :
             self.loss = np.sum(loss)
+        
+        else :
+            self.loss = np.max(loss)
 
         return self.loss 
 
