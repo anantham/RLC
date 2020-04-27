@@ -308,7 +308,7 @@ class smoothl1loss(layer) :
         return self.loss 
 
     def backward(self) :
-        n = np.sum(np.abs(self.x - self.labels))
+        n = self.loss
 
         if n <= -1 :
             self.dx = -1
