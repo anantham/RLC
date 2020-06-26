@@ -203,16 +203,18 @@ def updatePoints(player, boardTemp, pos):
 			points[enemy] -= len(oldArea)
 
 # player can be 1 or 2, white or black, pos is a tuple of (i,j)
-def play(player, pos):
+def play(player, pos, boardTemp):
 	# ensure these variables is treated as a global variable
 	global board, turn 
+	board = boardTemp
+
 	if(debug):	
 		print("\n\nTurn Number "+ str(turn) +" player "+str(player)+" is trying to play at position "+str(pos))
 		print(points)
 	
 	# check if position is free of any other piece
 	if(pos in board[0]):
-		boardTemp = board # making copy might take time? needed for Rule 8
+		#boardTemp = board # making copy might take time? needed for Rule 8
 		boardTemp[0].remove(pos)
 		boardTemp[player].append(pos)
 		rewardPieces = capture(player, boardTemp, pos)
@@ -268,10 +270,10 @@ def go(state, action, player):
 				b[1].append((i,j))
 			elif(state[i][j] == 2):
 				b[2].append((i,j))
-	board = b
+
 	if(debug):
 		print(board)
-	s2, reward = play(player,action)
+	s2, reward = play(player,action, b)
 	return boardToState(s2), reward
 
 ''' Normal human play '''

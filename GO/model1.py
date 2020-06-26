@@ -6,11 +6,11 @@ class model1():
 
 	def __init__(self):
 		# noOfFilters, input dim, shape of filter
-		self.conv1 = nn.convolve3d((5,1,3,3), mode = 'valid', param = 'he')
+		self.conv1 = nn.convolve3d(shape=(5,1,3,3), mode = 'valid', param = 'he')
 		self.add1 = nn.add()
-		self.conv2 = nn.convolve3d((25,5,3,3), mode = 'valid', param = 'he')
+		self.conv2 = nn.convolve3d(shape=(25,5,3,3), mode = 'valid', param = 'he')
 		self.add2 = nn.add()
-		self.lin = nn.linear((25,25), param = 'he')
+		self.lin = nn.linear(shape=(25,25), param = 'he')
 		self.add3 = nn.add()
 		self.sig = nn.sigmoid()
 		self.mse = nn.mse()

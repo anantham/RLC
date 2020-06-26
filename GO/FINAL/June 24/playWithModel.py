@@ -2,6 +2,8 @@ import pm
 import main
 import numpy as np
 import nn
+import models
+
 
 def model1():
     model = nn.sequential(
@@ -16,10 +18,10 @@ def model1():
     nn.sigmoid()]
 
     )
-    return model 
+    return model
 
-model = model1()
-w = np.load('weights81.npy', allow_pickle= True)
+model = models.model2()
+w = np.load('weights42.npy', allow_pickle= True)
 model.set_weights(w)
 
 
@@ -54,6 +56,12 @@ while(turn<pm.size**2):
     action = np.argmax(value*empty)
     print("Model chooses to play at "+str(action))
     state, r = main.go(stateNew,action,player)
+    # rule against suicide
+    if(r == -2):
+        empty[np.argmax(value*empty)] = 0
+        action = np.argmax(value*empty)
+        state, r = main.go(stateNew,action,player)
+
     player = 3 - player 
     
     print('next state {}, reward = {} \n \n '.format(state,r))

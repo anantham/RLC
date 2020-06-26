@@ -7,6 +7,7 @@ import logging as log
 import tools as tl 
 import matplotlib.pyplot as plt
 import sys 
+import pm
 
 index = tl.index('index.npy')
 index = str(index)
@@ -14,9 +15,9 @@ tl.cprint('index = {}'.format(index))
 
 log.basicConfig(level=log.WARNING)
 
-model = models.model1()
+model = models.model2()
 
-
+size = pm.size
 # pick greedy choice 70% of the time
 eps = 0.7
 
@@ -44,15 +45,15 @@ def play(policy):
     Loss = 0
     Reward = []
     player = 1
-    state = np.zeros((5,5))
+    state = np.zeros((size,size))
     value = model.forward(state)
     action = np.argmax(value)
-    for i in range(24):
+    for i in range(size**2):
         state, reward  = main.go(state,action,player)
         temp1 = model.forward(state)
         moves = np.reshape(np.where(state==0,1,0),-1)
         temp2 = Action(moves*temp1,policy)
-        dx = np.zeros(25)
+        dx = np.zeros(size**2)
         log.debug('index {}, action {}, value {},reward {},temp2 {}'.format(i,action, value, reward, temp2))
         dx[action] = (value[action] - (reward/50 - temp1[temp2]))
         loss = (np.abs(dx[action]))**2
@@ -72,7 +73,8 @@ R = []
 
 print("Starting - enter what type of policy you want to use.\n")
 policy = input()
-for j in range(10**2):
+
+for j in range(10000):
     try:
         loss, reward = play(policy)
         L.append(loss)
@@ -117,7 +119,4 @@ np.save('data/weights'+ index +'.npy',W)
 
 print(policy+" SAVED weights using index "+str(index))
 
-
-    
-    
     
